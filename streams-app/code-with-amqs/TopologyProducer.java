@@ -1,7 +1,8 @@
-package org.acme.kafka.streams.aggregator.streams;
+package org.acme.kafka.streams.aggregator;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
+import jakarta.inject.Inject;
 
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
@@ -12,11 +13,14 @@ import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.KTable;
 import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.ValueJoiner;
-
+import org.jboss.logging.Logger;
+import org.jboss.logging.annotations.Properties;
 import org.json.JSONObject;
 
 @ApplicationScoped
 public class TopologyProducer {
+    @Inject
+    Logger log;
 
     static final String STATUS_STORE = "StatusStore";
 
@@ -67,13 +71,13 @@ public class TopologyProducer {
                         JSONObject statusJsonObj = new JSONObject(statusValue.toString());
                         int checkCount = Integer.valueOf(aggJsonObj.getString("checkCount"));
                         int count = Integer.valueOf(statusJsonObj.getString("count"));
-                        System.out.println("Count check ===> " + checkCount + ", statusCount ===> " + count);
-                        //log.info("Count check ===> " + checkCount + ", statusCount ===> " + count);
+                        //System.out.println("Count check ===> " + checkCount + ", statusCount ===> " + count);
+                        log.info("Count check ===> " + checkCount + ", statusCount ===> " + count);
                         
                         //if (aggJsonObj.getString("checkCount").equals(statusJsonObj.getString("count"))) {
                         if (checkCount == count) {
-                            System.out.println("aggJsonObj ===> " + aggJsonObj.toString());
-                            //log.info("aggJsonObj ===> " + aggJsonObj.toString());
+                            //System.out.println("aggJsonObj ===> " + aggJsonObj.toString());
+                            log.info("aggJsonObj ===> " + aggJsonObj.toString());
                             aggJsonObj.put("mesResult", statusJsonObj.get("result"));
                             aggJsonObj.put("event", "completed");
                             
@@ -90,8 +94,7 @@ public class TopologyProducer {
                 () -> "", 
                 (aggKey, newValue, aggValue) -> newValue)
             .toStream()
-            .peek((key, value) -> System.out.println("Outgoing record - key " + key))
-            //.peek((key, value) -> log.info("Outgoing record - key " + key))
+            .peek((key, value) -> log.info("Outgoing record - key " + key))
             .to(REPORT_TOPIC);
 
         return builder.build();
