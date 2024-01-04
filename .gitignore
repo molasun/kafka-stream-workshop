@@ -1,0 +1,5 @@
+.DS_Store
+streams-app/code-with-amqs/src/main/docker/Dockerfile.jvm
+streams-app/code-with-amqs/src/main/docker/Dockerfile.legacy-jar
+streams-app/code-with-amqs/src/main/docker/Dockerfile.native
+streams-app/code-with-amqs/src/main/docker/Dockerfile.native-micro
